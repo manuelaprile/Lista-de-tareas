@@ -1,75 +1,58 @@
 //Variables
-const boton = document.querySelector('#add');
-const formulario = document.querySelector('#formulario');
-const listado = document.querySelector('.task');
-let tareas = [];
-
-
-
-//Eventos
-
-eventos();
-
-function eventos() {
-  //Cuando el usuario agrega una nueva tarea
-  formulario.addEventListener('submit', agregar);
-  //Cuando el documento termina de cargar
-  document.addEventListener('DOMContentLoaded', () => {
-    tareas = JSON.parse(localStorage.getItem('tareas')) || [];
-    crearHTML();
-  });
-}
+const button = document.querySelector('#add');
+const form = document.querySelector('#formulario');
+const list = document.querySelector('.task');
+let tasks = [];
 
 //Funciones
 
-
-function agregar(e) {
+const add = (e) => {
   e.preventDefault();
   const tarea = document.querySelector('#tarea').value;
 
   if (tarea === '') {
-    mostrarError('Los campos no pueden ser vacíos');
+    showError('Los campos no pueden ser vacíos');
     return;
   }
 
-  const tareaObj = {
+  const taskObj = {
     id: Date.now(),
     tarea
   }
 
-  tareas = [...tareas, tareaObj];
+  tasks = [...tasks, taskObj];
 
   //Una vez agregado al array, creo el html
-  crearHTML();
+  createHTML();
 
   //Limpio el input
 
-  formulario.reset();
+  form.reset();
 
 
 }
 
-function mostrarError(error) {
+const showError = (error) => {
   const msg = document.createElement('p');
   msg.textContent = error;
   msg.classList.add('error');
-  listado.appendChild(msg);
+  list.appendChild(msg);
 
   setTimeout(() => {
     msg.remove();
   }, 3000);
 }
 
-function crearHTML() {
-  limpiarHTML();
-  if (tareas.length > 0) {
-    tareas.forEach(tarea => {
+const createHTML = () => {
+  clearHTML();
+  if (tasks.length > 0) {
+    tasks.forEach(tarea => {
       const btnEliminar = document.createElement('button');
+      const icon = document.createElement('i');
+      icon.classList.add('fa', 'fa-trash');
       btnEliminar.classList.add('btn-eliminar');
-      btnEliminar.innerText = 'X';
-      btnEliminar.onclick = () => {
-        eliminar(tarea.id);
-      }
+      btnEliminar.appendChild(icon);
+      btnEliminar.addEventListener('click', () => deleteTask(tarea.id));
       const divTask = document.createElement('div');
       divTask.classList.add('task-container');
       //Creacion del HTML
@@ -78,26 +61,40 @@ function crearHTML() {
       p.classList.add('task-msg')
       divTask.appendChild(p)
       divTask.appendChild(btnEliminar);
-      listado.appendChild(divTask);
+      list.appendChild(divTask);
 
     })
   }
 
-  agregarStorage();
+  addStorage();
 }
 
-function agregarStorage() {
-  localStorage.setItem('tareas', JSON.stringify(tareas));
+const addStorage = () => {
+  localStorage.setItem('tareas', JSON.stringify(tasks));
 }
 
-function eliminar(id) {
-  tareas = tareas.filter(tarea => tarea.id != id);
-  crearHTML();
+const deleteTask = (id) => {
+  tasks = tasks.filter(tarea => tarea.id != id);
+  createHTML();
 
 }
 
-function limpiarHTML() {
-  while (listado.firstChild) {
-    listado.removeChild(listado.firstChild);
+const clearHTML = () => {
+  while (list.firstChild) {
+    list.removeChild(list.firstChild);
   }
 }
+
+//Eventos
+
+const events = () => {
+  //Cuando el usuario agrega una nueva tarea
+  form.addEventListener('submit', add);
+  //Cuando el documento termina de cargar
+  document.addEventListener('DOMContentLoaded', () => {
+    tasks = JSON.parse(localStorage.getItem('tareas')) || [];
+    createHTML();
+  });
+}
+
+events();
